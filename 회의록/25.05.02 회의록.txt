@@ -11,7 +11,7 @@
 
 **코드 분담**
 정도진 : FirstPage, YutBoard (View Part)
-이다빈 : GameController, PlayerAdapter, PieceAdapter
-안선우 : Player
-민진설 : GameState, PlayConfig
-이레뒤 : Yut, Piece
+이다빈 : GameController, PlayerAdapter, PieceAdapter (Controller Part)
+안선우 : Player (Model Part)
+민진설 : GameState, PlayConfig (Model Part)
+이레뒤 : Yut, Piece (Model Part)
