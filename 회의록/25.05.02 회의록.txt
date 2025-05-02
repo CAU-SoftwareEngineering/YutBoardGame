@@ -8,3 +8,10 @@
 1. MVC 구조 및 유스케이스 모델 논의
 
 2. 스켈레톤 코드 작성 후 코드 구현 분담
+
+**코드 분담**
+정도진 : FirstPage, YutBoard (View Part)
+이다빈 : GameController, PlayerAdapter, PieceAdapter
+안선우 : Player
+민진설 : GameState, PlayConfig
+이레뒤 : Yut, Piece
