@@ -12,6 +12,10 @@ public class GameState {
         // 플레이어와 말 개수 설정 및 초기화
     }
 
+    public List<Player> getPlayers() {
+        return players;
+    }
+
     public Player getCurrentPlayer() {
         // 현재 턴의 플레이어 반환
         return null;
