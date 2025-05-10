@@ -85,15 +85,15 @@ public class GameState {
         Piece selected = current.getPieces().get(pieceId);
         int path = selected.getPathIndex();
         int step = selected.getStepIndex();
-        int move = lastThrow.get(select).ordinal();  // 선택된 결과를 사용용
-        if (lastThrow.get(select) == Yut.Result.빽도){
-            move = -1; // 빽도는 -1로 처리
+
+        int move = lastThrow.get(0).ordinal();  // 윷 결과에서 첫 번째 값
+        if (lastThrow.get(0) == Yut.Result.빽도) {
+            move = -1;
         }
-        lastThrow.remove(select); // 던지기 결과 사용 후 제거
-        select = 0; // 다음 이동에 사용할 수 있도록 초기화
+        System.out.printf("윷 결과 move = %d\n", move);
+        lastThrow.remove(0);  // 결과 사용 후 제거
 
-
-        // 함께 이동할 말들 선택 (같은 위치에 있는 그룹)
+        // 함께 이동할 말들 선택 (그룹)
         List<Piece> groupToMove = new ArrayList<>();
         for (Piece p : current.getPieces()) {
             if (!p.isFinished()
@@ -104,13 +104,16 @@ public class GameState {
         }
 
         for (Piece p : groupToMove) {
+            System.out.printf("이동 전: pieceId=%d path=%d step=%d\n", p.getId(), p.getPathIndex(), p.getStepIndex());
+
             int pPath = p.getPathIndex();
             int pStep = p.getStepIndex();
 
-            // 지름길 진입 여부
+            // 지름길 진입
             if (pPath == 0) {
                 for (int i = 1; i < pathConfig.getBranchCount(); i++) {
                     if (pStep == pathConfig.getBranchPoint(i)) {
+                        System.out.printf("지름길 진입: pieceId=%d → path=%d\n", p.getId(), i);
                         pPath = i;
                         pStep = -1;
                         break;
@@ -118,34 +121,45 @@ public class GameState {
                 }
             }
 
-            // 단계 이동
             int newStep = pStep + move;
             int pathLength = (pPath == 0)
                     ? totalOuterSteps
-                    : pathConfig.getShortcutLength(pPath);
-            // 경로 길이를 벗어나면 완주로 처리하고 더 이상 이동하지 않음
-            if (newStep >= pathLength) {
+                    : pathConfig.getShortcutLength();
+
+            // 중앙 노드 올라온지 확인
+            if (pPath > 0 && pStep == pathConfig.getMergeStep()) {
+                pPath = pathConfig.getMergeShortcut();
+                pStep = newStep;
+            }
+            // 외곽 복귀 검사
+            else if (pPath > 0 && newStep >= 5) {
+                int offset = pathConfig.getExitOffset(pPath);
+                pPath = 0;
+                pStep = newStep + offset;
+                System.out.printf("외곽 복귀: pieceId=%d path=%d → path=0, step+=%d\n", p.getId(), pPath, offset);
+                if (pStep >= pathConfig.getOuterLength()) {
+                    System.out.printf("완주 처리됨: pieceId=%d\n", p.getId());
+                    p.setFinished(true);
+                    p.setPathIndex(-1);
+                    p.setStepIndex(-1);
+                    continue;
+                }
+            }
+            // 그 외 경우는 일반 진행
+            else if (newStep >= pathConfig.getOuterLength()) {
+                System.out.printf("완주 처리됨: pieceId=%d\n", p.getId());
                 p.setFinished(true);
                 p.setPathIndex(-1);
                 p.setStepIndex(-1);
                 continue;
             }
-            pStep = newStep;
-
-            // 중앙 합류 처리
-            if (pPath > 0 && pStep == pathConfig.getMergeStep()) {
-                pPath = pathConfig.getMergeShortcut();
-            }
-            // 지름길 종료 → 외곽 복귀
-            else if (pPath > 0 && pStep > 4) {
-                int offset = pathConfig.getExitOffset(pPath);
-                pPath = 0;
-                pStep += offset;
+            else {
+                pStep = newStep;
             }
 
-            // 위치 업데이트
             p.setPathIndex(pPath);
             p.setStepIndex(pStep);
+            System.out.printf("이동 후: pieceId=%d path=%d step=%d\n", p.getId(), pPath, pStep);
         }
 
         // 이동 후 기준 좌표: 첫 번째 살아있는 말의 최종 위치

@@ -8,7 +8,7 @@ public class PathConfig {
     private final int mergeStep;         // 중앙 합류 지점의 단계 인덱스
     private final int[] exitOffsets;     // 지름길 종료 후 외곽 경로 복귀 보정값
     private final int outerLength;       // 외곽 경로 전체 단계 수
-    private final int[] shortcutLengths; // 각 지름길별 최대 단계 수
+    private final int shortcutLengths;   // 지름길 최대 단계 수
 
     public PathConfig(PlayConfig.BoardType boardType) {
         this.boardType = boardType;
@@ -19,7 +19,7 @@ public class PathConfig {
                 mergeStep       = 2;
                 exitOffsets     = new int[]{0, 10, 15};
                 outerLength     = 20;
-                shortcutLengths = new int[]{0, 5, 5};
+                shortcutLengths = 5;
                 break;
             case PENTAGON:
                 branchPoints    = new int[]{0, 5, 10, 15};
@@ -27,7 +27,7 @@ public class PathConfig {
                 mergeStep       = 2;
                 exitOffsets     = new int[]{0, 10, 15, 20};
                 outerLength     = 25;
-                shortcutLengths = new int[]{0, 5, 5, 5};
+                shortcutLengths = 5;
                 break;
             case HEXAGON:
                 branchPoints    = new int[]{0, 5, 10, 15, 20};
@@ -35,7 +35,7 @@ public class PathConfig {
                 mergeStep       = 2;
                 exitOffsets     = new int[]{0, 5, 15, 20, 25};
                 outerLength     = 30;
-                shortcutLengths = new int[]{0, 5, 5, 5};
+                shortcutLengths = 5;
                 break;
             default:
                 throw new IllegalArgumentException("Unknown board type");
@@ -55,5 +55,5 @@ public class PathConfig {
     /** 외곽 경로 전체 단계 수 */
     public int getOuterLength() { return outerLength; }
     /** 특정 지름길의 최대 단계 수 */
-    public int getShortcutLength(int idx) { return shortcutLengths[idx]; }
+    public int getShortcutLength() { return shortcutLengths; }
 }

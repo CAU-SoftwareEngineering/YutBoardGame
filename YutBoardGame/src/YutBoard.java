@@ -207,6 +207,8 @@ public class YutBoard extends JFrame implements GameView {
             Map<String, Integer> stackMap = new HashMap<>();
             for (Piece q : state.getCurrentPlayer().getPieces()) {
                 if (q.isFinished()) continue;
+                System.out.printf("화면에 표시 예정: pieceId=%d path=%d step=%d\n",
+                        q.getId(), q.getPathIndex(), q.getStepIndex());
                 String key = q.getPathIndex() + "-" + q.getStepIndex();
                 stackMap.put(key, stackMap.getOrDefault(key, 0) + 1);
             }
@@ -261,20 +263,6 @@ public class YutBoard extends JFrame implements GameView {
                 rndBtn.setEnabled(false);
                 specBtn.setEnabled(false);
             }
-
-            if (state.getPhase() == GameState.phase.THROW) {
-                newPieceBtn.setEnabled(false);
-                rndBtn.setEnabled(true);
-                specBtn.setEnabled(true);
-            }
-            if (state.getPhase() == GameState.phase.MOVE) {
-                newPieceBtn.setEnabled(true);
-                rndBtn.setEnabled(false);
-                specBtn.setEnabled(false);
-            }
-
-
-
 
             // 모든 칸에 기본 보드 아이콘(흰 원 / 큰 원 / 시작 원) 복원
             for (int pi = 0; pi < panButtons.length; pi++) {
@@ -353,9 +341,13 @@ public class YutBoard extends JFrame implements GameView {
     /** 이미지 리소스 로드 헬퍼 */
     private ImageIcon loadIcon(String path) {
         URL url = getClass().getClassLoader().getResource(path);
-        if (url == null) throw new RuntimeException(path + " not found");
+        if (url == null) {
+            System.err.println("아이콘 파일 누락 또는 경로 문제: " + path);
+            return new ImageIcon(); // 빈 이미지라도 리턴
+        }
         return new ImageIcon(url);
     }
+
 
     /** 보드 버튼 생성 헬퍼 */
     private JButton createBoardBtn(ImageIcon icon, int x, int y, int w, int h) {
