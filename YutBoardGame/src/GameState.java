@@ -166,7 +166,9 @@ public class GameState {
             for (Piece opPiece : op.getPieces()) {
                 if (!opPiece.isFinished()
                         && opPiece.getPathIndex() == finalPath
-                        && opPiece.getStepIndex() == finalStep) {
+                        && opPiece.getStepIndex() == finalStep
+                        && opPiece.getPathIndex() != -1
+                        && opPiece.getStepIndex() != -1) {
                     opPiece.setPathIndex(-1);
                     opPiece.setStepIndex(-1);
                     opPiece.setGrouped(false);
@@ -177,6 +179,7 @@ public class GameState {
         if (isCaptured) {
             throwCount++; // 잡으면 던지기 횟수 증가
             currentPhase = phase.THROW; // 던지기 단계로 전환
+            isCaptured = false; // 잡은 상태 초기화
         }
 
         // 그룹핑
