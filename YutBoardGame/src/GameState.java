@@ -69,14 +69,9 @@ public class GameState {
         Piece selected = current.getPieces().get(pieceId);
         int path = selected.getPathIndex();
         int step = selected.getStepIndex();
-<<<<<<< Updated upstream
-        int move = lastThrow.get(0).ordinal();
-        lastThrow.remove(0); // 던지기 결과 사용 후 제거
-=======
         int move = lastThrow.get(0).ordinal();  // 일단 첫번째 결과를 사용
         lastThrow.remove(0); // 던지기 결과 사용 후 제거
 
->>>>>>> Stashed changes
 
         // 함께 이동할 말들 선택 (같은 위치에 있는 그룹)
         List<Piece> groupToMove = new ArrayList<>();
@@ -134,9 +129,6 @@ public class GameState {
             p.setStepIndex(pStep);
         }
 
-<<<<<<< Updated upstream
-        // 잡기: 같은 칸의 상대 말 초기 위치로 리셋
-=======
         // 이동 후 기준 좌표: 첫 번째 살아있는 말의 최종 위치
         int finalPath = -1, finalStep = -1;
         for (Piece p : groupToMove) {
@@ -149,7 +141,6 @@ public class GameState {
 
         // --- 잡기 ---
         boolean isCaptured = false;
->>>>>>> Stashed changes
         for (Player op : players) {
             if (op == current) continue;
             for (Piece opPiece : op.getPieces()) {
@@ -159,10 +150,7 @@ public class GameState {
                     opPiece.setPathIndex(0);
                     opPiece.setStepIndex(0);
                     opPiece.setGrouped(false);
-<<<<<<< Updated upstream
-=======
                     isCaptured = true;
->>>>>>> Stashed changes
                 }
             }
         }
@@ -191,13 +179,8 @@ public class GameState {
             }
         }
 
-<<<<<<< Updated upstream
-        if(lastThrow.isEmpty()) {
-            nextTurn(); // 전부 이동 후에는 턴 넘기기기
-=======
         if(lastThrow.isEmpty() && currentPhase == phase.MOVE) {
             nextTurn(); // 전부 이동 후에는 턴 넘기기
->>>>>>> Stashed changes
         }
     }
 

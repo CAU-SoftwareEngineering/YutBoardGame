@@ -30,10 +30,6 @@ public class YutBoard extends JFrame implements GameView {
 
     private JButton rndBtn;                 // 윷 던지기 버튼
     private JButton specBtn;               // 강제 결과 버튼
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
     /**
      * @param config       PlayConfig 객체
      * @param playerNames  플레이어 이름 목록
