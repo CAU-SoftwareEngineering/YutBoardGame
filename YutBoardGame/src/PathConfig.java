@@ -17,7 +17,7 @@ public class PathConfig {
                 branchPoints    = new int[]{0, 5, 10};
                 mergeShortcut   = 2;
                 mergeStep       = 2;
-                exitOffsets     = new int[]{0, 9, 14};
+                exitOffsets     = new int[]{0, 10, 15};
                 outerLength     = 20;
                 shortcutLengths = new int[]{0, 5, 5};
                 break;
@@ -25,7 +25,7 @@ public class PathConfig {
                 branchPoints    = new int[]{0, 5, 10, 15};
                 mergeShortcut   = 3;
                 mergeStep       = 2;
-                exitOffsets     = new int[]{0, 9, 14, 19};
+                exitOffsets     = new int[]{0, 10, 15, 20};
                 outerLength     = 25;
                 shortcutLengths = new int[]{0, 5, 5, 5};
                 break;
@@ -33,7 +33,7 @@ public class PathConfig {
                 branchPoints    = new int[]{0, 5, 10, 15, 20};
                 mergeShortcut   = 4;
                 mergeStep       = 2;
-                exitOffsets     = new int[]{0, 9, 14, 19, 24};
+                exitOffsets     = new int[]{0, 5, 15, 20, 25};
                 outerLength     = 30;
                 shortcutLengths = new int[]{0, 5, 5, 5};
                 break;

@@ -133,15 +133,14 @@ public class GameState {
             pStep = newStep;
 
             // 중앙 합류 처리
-            if (pPath == pathConfig.getMergeShortcut() && pStep == pathConfig.getMergeStep()) {
+            if (pPath > 0 && pStep == pathConfig.getMergeStep()) {
                 pPath = pathConfig.getMergeShortcut();
-                pStep = 2;
             }
             // 지름길 종료 → 외곽 복귀
-            else if (pPath > 0 && pStep > pathConfig.getShortcutLength(pPath)) {
+            else if (pPath > 0 && pStep > 4) {
                 int offset = pathConfig.getExitOffset(pPath);
-                pStep += offset;
                 pPath = 0;
+                pStep += offset;
             }
 
             // 위치 업데이트
