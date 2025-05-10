@@ -16,7 +16,7 @@ public class PathConfig {
             case SQUARE:
                 branchPoints    = new int[]{0, 5, 10};
                 mergeShortcut   = 2;
-                mergeStep       = 3;
+                mergeStep       = 2;
                 exitOffsets     = new int[]{0, 9, 14};
                 outerLength     = 20;
                 shortcutLengths = new int[]{0, 5, 5};
@@ -24,7 +24,7 @@ public class PathConfig {
             case PENTAGON:
                 branchPoints    = new int[]{0, 5, 10, 15};
                 mergeShortcut   = 3;
-                mergeStep       = 3;
+                mergeStep       = 2;
                 exitOffsets     = new int[]{0, 9, 14, 19};
                 outerLength     = 25;
                 shortcutLengths = new int[]{0, 5, 5, 5};
@@ -32,7 +32,7 @@ public class PathConfig {
             case HEXAGON:
                 branchPoints    = new int[]{0, 5, 10, 15, 20};
                 mergeShortcut   = 4;
-                mergeStep       = 3;
+                mergeStep       = 2;
                 exitOffsets     = new int[]{0, 9, 14, 19, 24};
                 outerLength     = 30;
                 shortcutLengths = new int[]{0, 5, 5, 5};

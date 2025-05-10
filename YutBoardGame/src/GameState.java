@@ -11,8 +11,8 @@ public class GameState {
     private final int totalOuterSteps;       // 외곽 경로 전체 단계 수
 
     private int currentPlayerIndex = 0;      // 현재 턴 플레이어 인덱스
-    private List<Yut.Result> lastThrow;            // 마지막 윷 던지기 결과
-    private int throwCount = 1;            // 던질 수 있는 횟수
+    private List<Yut.Result> lastThrow;      // 마지막 윷 던지기 결과
+    private int throwCount = 1;              // 던질 수 있는 횟수
 
     public enum phase {THROW, MOVE} // 게임 진행을 던지기/이동으로 분리
     private phase currentPhase = phase.THROW; // 현재 진행 중인 단계
@@ -108,7 +108,7 @@ public class GameState {
                 for (int i = 1; i < pathConfig.getBranchCount(); i++) {
                     if (pStep == pathConfig.getBranchPoint(i)) {
                         pPath = i;
-                        pStep = 0;
+                        pStep = -1;
                         break;
                     }
                 }
@@ -130,8 +130,8 @@ public class GameState {
 
             // 중앙 합류 처리
             if (pPath == pathConfig.getMergeShortcut() && pStep == pathConfig.getMergeStep()) {
-                pPath = pathConfig.getMergeShortcut() + 1;
-                pStep = 0;
+                pPath = pathConfig.getMergeShortcut();
+                pStep = 2;
             }
             // 지름길 종료 → 외곽 복귀
             else if (pPath > 0 && pStep > pathConfig.getShortcutLength(pPath)) {
@@ -161,8 +161,8 @@ public class GameState {
             if (op == current) continue;
             for (Piece opPiece : op.getPieces()) {
                 if (!opPiece.isFinished()
-                        && opPiece.getPathIndex() == path
-                        && opPiece.getStepIndex() == step) {
+                        && opPiece.getPathIndex() == finalPath
+                        && opPiece.getStepIndex() == finalStep) {
                     opPiece.setPathIndex(-1);
                     opPiece.setStepIndex(-1);
                     opPiece.setGrouped(false);
@@ -170,32 +170,28 @@ public class GameState {
                 }
             }
         }
-        if (isCaptured) {
-            throwCount++; // 잡으면 던지기 횟수 증가
-            currentPhase = phase.THROW; // 던지기 단계로 전환
-        }
 
-        // 그룹핑: 같은 칸 내 말이 2개 이상이면 grouped=true
+        // 그룹핑
         int count = 0;
         for (Piece my : current.getPieces()) {
             my.setGrouped(false);
             if (!my.isFinished()
-                    && my.getPathIndex() == path
-                    && my.getStepIndex() == step) {
+                    && my.getPathIndex() == finalPath
+                    && my.getStepIndex() == finalStep) {
                 count++;
             }
         }
         if (count > 1) {
             for (Piece my : current.getPieces()) {
                 if (!my.isFinished()
-                        && my.getPathIndex() == path
-                        && my.getStepIndex() == step) {
+                        && my.getPathIndex() == finalPath
+                        && my.getStepIndex() == finalStep) {
                     my.setGrouped(true);
                 }
             }
         }
 
-        if(lastThrow.isEmpty() && currentPhase == phase.MOVE) {
+        if(lastThrow.isEmpty() && currentPhase == phase.MOVE && !isCaptured) {
             nextTurn(); // 전부 이동 후에는 턴 넘기기
         }
     }
