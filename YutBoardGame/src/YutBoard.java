@@ -100,8 +100,7 @@ public class YutBoard extends JFrame implements GameView {
      * 보드상의 논리적 좌표 계산:
      * - 외곽 경로: sides*5칸 (각 변을 5등분)
      * - 지름길: each branch point → 중심까지 5단계
-     */
-    @SuppressWarnings("unchecked")
+     */    @SuppressWarnings("unchecked")
     private void initBoardGeometry() {
         int sides = switch (config.getBoardType()) {
             case PENTAGON -> 5;
@@ -216,14 +215,14 @@ public class YutBoard extends JFrame implements GameView {
                 for (int si = 0; si < panButtons[pi].length; si++) {
                     String baseIcon;
                     if (pi == 0 && si == 0) {
-                        baseIcon = "startcircle.jpg";            // 시작 칸
+                        baseIcon = "startcircle.jpg";           // 시작 칸
                     }
                     else if ((pi == 0 && si % 5 == 0)           // 외곽 모서리
-                            || (pi > 0 && si == 2)) {             // 지름길 합류 지점
-                        baseIcon = "bigcircle.jpg";              // 큰 원
+                            || (pi > 0 && si == 2)) {           // 지름길 합류 지점
+                        baseIcon = "bigcircle.jpg";             // 큰 원
                     }
                     else {
-                        baseIcon = "circle.jpg";                 // 일반 원
+                        baseIcon = "circle.jpg";                // 일반 원
                     }
                     panButtons[pi][si].setIcon(loadIcon(IMG_ROOT + baseIcon));
                     panButtons[pi][si].setEnabled(canMove); // 활성/비활성 설정

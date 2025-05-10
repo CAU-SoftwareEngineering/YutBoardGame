@@ -82,7 +82,7 @@ public class GameState {
             int pathLength = (pPath == 0)
                     ? totalOuterSteps
                     : pathConfig.getShortcutLength(pPath);
-            // 제안 A: 경로 길이를 벗어나면 완주로 처리하고 더 이상 이동하지 않음
+            // 경로 길이를 벗어나면 완주로 처리하고 더 이상 이동하지 않음
             if (newStep >= pathLength) {
                 p.setFinished(true);
                 p.setPathIndex(-1);
@@ -115,8 +115,8 @@ public class GameState {
                 if (!opPiece.isFinished()
                         && opPiece.getPathIndex() == path
                         && opPiece.getStepIndex() == step) {
-                    opPiece.setPathIndex(0);
-                    opPiece.setStepIndex(0);
+                    opPiece.setPathIndex(-1);
+                    opPiece.setStepIndex(-1);
                     opPiece.setGrouped(false);
                 }
             }
