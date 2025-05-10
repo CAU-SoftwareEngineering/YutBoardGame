@@ -23,8 +23,9 @@ public class Yut {
             case 3: return Result.걸;     // 3개 평평
             case 2: return Result.개;      // 2개 평평
             case 1:
-                // 1개 평평 중 첫 번째가 평평인지 검사해서 백도/도 구분
-                // 여기서는 단순화: 1개 평평은 DO로 처리
+                if(random.nextFloat() <= 0.25f){
+                    return Result.빽도;  //4분의 1 확률로 빽도
+                }
                 return Result.도;
             default:
                 // 예외 상황 방어

@@ -28,6 +28,8 @@ public class YutBoard extends JFrame implements GameView {
     private final int buttonSize = 30;
     private boolean canMove = false;         // 윷 던진 후에만 말 이동 허용
 
+    private JButton rndBtn;                 // 윷 던지기 버튼
+    private JButton specBtn;               // 강제 결과 버튼
     /**
      * @param config       PlayConfig 객체
      * @param playerNames  플레이어 이름 목록
@@ -76,9 +78,9 @@ public class YutBoard extends JFrame implements GameView {
 
         // 윷 던지기 버튼
         JPanel top = new JPanel();
-        JButton rndBtn = new JButton("랜덤 윷 던지기");
+        rndBtn = new JButton("랜덤 윷 던지기");
         JComboBox<Yut.Result> combo = new JComboBox<>(Yut.Result.values());
-        JButton specBtn = new JButton("지정 윷 던지기");
+        specBtn = new JButton("지정 윷 던지기");
         rndBtn.addActionListener(e -> controller.onThrowRandom());
         specBtn.addActionListener(e -> controller.onThrowSpecified((Yut.Result)combo.getSelectedItem()));
         top.add(rndBtn); top.add(combo); top.add(specBtn);
@@ -210,6 +212,17 @@ public class YutBoard extends JFrame implements GameView {
             JButton newPieceBtn = new JButton("새 말 꺼내기");
             newPieceBtn.addActionListener(e -> controller.deployNewPiece());
             piecePanel.add(newPieceBtn);
+            newPieceBtn.setEnabled(false);
+            if (state.getPhase() == GameState.phase.THROW) {
+                newPieceBtn.setEnabled(false);
+                rndBtn.setEnabled(true);
+                specBtn.setEnabled(true);
+            }
+            if (state.getPhase() == GameState.phase.MOVE) {
+                newPieceBtn.setEnabled(true);
+                rndBtn.setEnabled(false);
+                specBtn.setEnabled(false);
+            }
 
             // 모든 칸에 기본 보드 아이콘(흰 원 / 큰 원 / 시작 원) 복원
             for (int pi = 0; pi < panButtons.length; pi++) {
@@ -246,6 +259,9 @@ public class YutBoard extends JFrame implements GameView {
                 }
             }
             statusLabel.setText("Player " + state.getCurrentPlayer().getId() + " | Result: " + state.getLastThrow());
+            if (state.getLastThrow().isEmpty()) {
+                statusLabel.setText("Player " + state.getCurrentPlayer().getId() +" | 윷을 던져주세요.");
+            }
             piecePanel.revalidate();
             piecePanel.repaint();
         });

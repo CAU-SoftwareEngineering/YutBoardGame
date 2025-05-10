@@ -11,7 +11,11 @@ public class GameState {
     private final int totalOuterSteps;       // 외곽 경로 전체 단계 수
 
     private int currentPlayerIndex = 0;      // 현재 턴 플레이어 인덱스
-    private Yut.Result lastThrow;            // 마지막 윷 던지기 결과
+    private List<Yut.Result> lastThrow;            // 마지막 윷 던지기 결과
+    private int throwCount = 1;            // 던질 수 있는 횟수
+
+    public enum phase {THROW, MOVE} // 게임 진행을 던지기/이동으로 분리
+    private phase currentPhase = phase.THROW; // 현재 진행 중인 단계
 
     /**
      * 생성자: 게임 설정과 플레이어명을 받아 초기화
@@ -21,6 +25,7 @@ public class GameState {
         this.pathConfig = new PathConfig(config.getBoardType());
         this.totalOuterSteps = pathConfig.getOuterLength();
         this.players = new ArrayList<>();
+        this.lastThrow = new ArrayList<>();
         for (int i = 0; i < config.getPlayerCount(); i++) {
             players.add(new Player(i, playerNames.get(i), config.getPieceCount()));
         }
@@ -31,14 +36,28 @@ public class GameState {
     /** 현재 턴 플레이어 반환 */
     public Player getCurrentPlayer() { return players.get(currentPlayerIndex); }
     /** 마지막 던지기 결과 반환 */
-    public Yut.Result getLastThrow() { return lastThrow; }
+    public List<Yut.Result> getLastThrow() { return lastThrow; }
+    /** 남은 던지기 횟수 반환*/
+    public int getThrowCount() { return throwCount; }
+    /** 현재 플레이어 페이즈 반환 */
+    public phase getPhase() { return currentPhase; }
 
     /**
      * 윷 던지기 결과 적용
      * @param result 던진 결과
      */
     public void applyThrow(Yut.Result result) {
-        this.lastThrow = result;
+        if(currentPhase != phase.THROW) {
+            return; // 던지기 단계가 아닐 때는 무시
+        }
+        this.lastThrow.add(result);
+        throwCount --; // 던지기 횟수 감소
+        if (result == Yut.Result.모 || result == Yut.Result.윷) {
+            throwCount ++; // 윷, 모가 나오면 던질 수 있는 횟수 추가
+        }
+        if (throwCount == 0) {
+            currentPhase = phase.MOVE; // 던지기 종료 후 이동 단계로 전환
+        }
     }
 
     /**
@@ -50,7 +69,8 @@ public class GameState {
         Piece selected = current.getPieces().get(pieceId);
         int path = selected.getPathIndex();
         int step = selected.getStepIndex();
-        int move = lastThrow.ordinal();
+        int move = lastThrow.get(0).ordinal();
+        lastThrow.remove(0); // 던지기 결과 사용 후 제거
 
         // 함께 이동할 말들 선택 (같은 위치에 있는 그룹)
         List<Piece> groupToMove = new ArrayList<>();
@@ -142,15 +162,16 @@ public class GameState {
             }
         }
 
-        // 말 이동이 끝난 뒤, 마지막 윷 결과가 윷(YUT) 또는 모(MO)이 아니면 턴 변경
-        if (lastThrow != Yut.Result.윷 && lastThrow != Yut.Result.모) {
-            nextTurn();
+        if(lastThrow.isEmpty()) {
+            nextTurn(); // 전부 이동 후에는 턴 넘기기기
         }
     }
 
     /** 턴 넘기기 */
     public void nextTurn() {
         currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
+        throwCount = 1; // 턴마다 던지기 횟수 초기화
+        currentPhase = phase.THROW; // 턴 넘기면 던지기 단계로 전환
     }
 
     /**
