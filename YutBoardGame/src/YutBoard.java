@@ -30,6 +30,10 @@ public class YutBoard extends JFrame implements GameView {
 
     private JButton rndBtn;                 // 윷 던지기 버튼
     private JButton specBtn;               // 강제 결과 버튼
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
     /**
      * @param config       PlayConfig 객체
      * @param playerNames  플레이어 이름 목록
@@ -85,6 +89,9 @@ public class YutBoard extends JFrame implements GameView {
         specBtn.addActionListener(e -> controller.onThrowSpecified((Yut.Result)combo.getSelectedItem()));
         top.add(rndBtn); top.add(combo); top.add(specBtn);
         add(top, BorderLayout.NORTH);
+
+        specBtn.setEnabled(false);
+        rndBtn.setEnabled(false);
 
         // 초기 지오메트리 및 UI 생성
         initBoardGeometry();
@@ -223,6 +230,20 @@ public class YutBoard extends JFrame implements GameView {
                 rndBtn.setEnabled(false);
                 specBtn.setEnabled(false);
             }
+
+            if (state.getPhase() == GameState.phase.THROW) {
+                newPieceBtn.setEnabled(false);
+                rndBtn.setEnabled(true);
+                specBtn.setEnabled(true);
+            }
+            if (state.getPhase() == GameState.phase.MOVE) {
+                newPieceBtn.setEnabled(true);
+                rndBtn.setEnabled(false);
+                specBtn.setEnabled(false);
+            }
+
+
+
 
             // 모든 칸에 기본 보드 아이콘(흰 원 / 큰 원 / 시작 원) 복원
             for (int pi = 0; pi < panButtons.length; pi++) {

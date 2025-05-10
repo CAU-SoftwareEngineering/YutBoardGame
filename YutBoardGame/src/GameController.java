@@ -51,7 +51,6 @@ public class GameController {
                 if (state.isGameOver()) {
                     view.showWinner(state.getCurrentPlayer());
                 } else {
-                    state.nextTurn();
                     view.updateBoard(state);
                 }
                 return;
