@@ -16,6 +16,7 @@ public class GameState {
 
     public enum phase {THROW, MOVE} // 게임 진행을 던지기/이동으로 분리
     private phase currentPhase = phase.THROW; // 현재 진행 중인 단계
+    private int select = 0; // 선택된 윷 인덱스
 
     /**
      * 생성자: 게임 설정과 플레이어명을 받아 초기화
@@ -41,6 +42,8 @@ public class GameState {
     public int getThrowCount() { return throwCount; }
     /** 현재 플레이어 페이즈 반환 */
     public phase getPhase() { return currentPhase; }
+    /** 현재 플레이어 인덱스 반환 */
+    public void setSelect(int value) { select = value; }
 
     /**
      * 윷 던지기 결과 적용
@@ -82,11 +85,12 @@ public class GameState {
         Piece selected = current.getPieces().get(pieceId);
         int path = selected.getPathIndex();
         int step = selected.getStepIndex();
-        int move = lastThrow.get(0).ordinal();  // 일단 첫번째 결과를 사용
-        if (lastThrow.get(0) == Yut.Result.빽도){
+        int move = lastThrow.get(select).ordinal();  // 선택된 결과를 사용용
+        if (lastThrow.get(select) == Yut.Result.빽도){
             move = -1; // 빽도는 -1로 처리
         }
-        lastThrow.remove(0); // 던지기 결과 사용 후 제거
+        lastThrow.remove(select); // 던지기 결과 사용 후 제거
+        select = 0; // 다음 이동에 사용할 수 있도록 초기화
 
 
         // 함께 이동할 말들 선택 (같은 위치에 있는 그룹)
@@ -169,6 +173,10 @@ public class GameState {
                     isCaptured = true;
                 }
             }
+        }
+        if (isCaptured) {
+            throwCount++; // 잡으면 던지기 횟수 증가
+            currentPhase = phase.THROW; // 던지기 단계로 전환
         }
 
         // 그룹핑

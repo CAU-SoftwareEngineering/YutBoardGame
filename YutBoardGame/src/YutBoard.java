@@ -193,7 +193,7 @@ public class YutBoard extends JFrame implements GameView {
                 String icon=(pi==0&&si==0)?"startcircle.jpg":((pi==0&&si%5==0)||(pi>0&&si==2))?"bigcircle.jpg":"circle.jpg";
                 JButton b=createBoardBtn(loadIcon(IMG_ROOT+icon),p.x-buttonSize/2,p.y-buttonSize/2,buttonSize,buttonSize);
                 final int fpi=pi, fsi=si;
-                b.addActionListener(e->{ if(!canMove) return; controller.onSelectPiece(fpi,fsi); canMove=false; updateBoard(controller.getState()); });
+                b.addActionListener(e->{ if(!canMove) return; controller.onSelectPiece(fpi,fsi); updateBoard(controller.getState());});
                 boardPanel.add(b);
                 panButtons[pi][si]=b;
             }
@@ -212,7 +212,43 @@ public class YutBoard extends JFrame implements GameView {
             }
 
             JButton newPieceBtn = new JButton("새 말 꺼내기");
-            newPieceBtn.addActionListener(e -> controller.deployNewPiece());
+            newPieceBtn.addActionListener(e -> {
+                if(state.getLastThrow().size()>1){
+
+                    int select = JOptionPane.showOptionDialog(this, "어떻게 움직이시겠습니까?", "선택",
+                        JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
+                        null, state.getLastThrow().toArray(), null);
+                        state.setSelect(select);
+                }
+                else{state.setSelect(0);}
+                controller.deployNewPiece(); 
+                if(state.getLastThrow().size()==0){
+                    canMove = false;
+                }
+            });
+
+            //말 이동시에도 선택을 출력하도록 리스너 초기화
+            for(int pi=0;pi<pathPoints.length;pi++){
+                List<Point> pts=pathPoints[pi];
+                for(int si=0;si<pts.size();si++){
+                    final int fpi=pi, fsi=si;
+                    panButtons[pi][si].addActionListener(e->{ if (!canMove) return;
+                        if(state.getLastThrow().size()>1){
+                            int select = JOptionPane.showOptionDialog(this, "어떻게 움직이시겠습니까?", "선택",
+                            JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
+                            null, state.getLastThrow().toArray(), null);
+                            state.setSelect(select);
+                        }
+                        else{state.setSelect(0);}
+                        controller.onSelectPiece(fpi,fsi);
+                        if(state.getLastThrow().size()==0){
+                            canMove = false;
+                        }
+                        updateBoard(controller.getState());});
+                }
+            }
+            
+            
             piecePanel.add(newPieceBtn);
             newPieceBtn.setEnabled(false);
             if (state.getPhase() == GameState.phase.THROW) {
