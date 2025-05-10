@@ -2,19 +2,22 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JRadioButton;
 
+/**
+ * FirstPage에서 “플레이어 수” 라디오 버튼 클릭을
+ * PlayConfig에 반영합니다.
+ */
 public class PlayerAdapter implements ActionListener {
-    private PlayConfig config;
+    private final PlayConfig config;
 
     public PlayerAdapter(PlayConfig config) {
-        // 초기 설정 객체 주입
         this.config = config;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        // 선택된 라디오 버튼에서 텍스트 추출 → 플레이어 수로 설정
         JRadioButton btn = (JRadioButton) e.getSource();
-        int playerNum = Integer.parseInt(btn.getText());
-        config.setPlayerCount(playerNum);
+        int playerCount = Integer.parseInt(btn.getText());
+        config.setPlayerCount(playerCount);
+        // System.out.println("Player count set to " + playerCount);
     }
 }

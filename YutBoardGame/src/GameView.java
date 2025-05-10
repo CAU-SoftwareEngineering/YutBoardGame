@@ -1,7 +1,5 @@
 public interface GameView {
-    void updatePiecePosition(int playerId, int x, int y, int stack);
-    void showYutResult(int result);
-    void showMessage(String message);
-    void highlightPlayer(int playerId);
-    void disableAllButtons();
+    void updateBoard(GameState state);
+    void showThrowResult(Yut.Result result);
+    void showWinner(Player winner);
 }

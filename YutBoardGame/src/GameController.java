@@ -1,69 +1,84 @@
+import java.util.List;
+
+/**
+ * 게임 진행 제어 클래스
+ */
 public class GameController {
-    private GameState gameState;
-    private GameView view;
+    private final GameState state;
+    private final GameView view;
 
-    public GameController(int playerCount, int pieceCount, GameView view) {
-        // GameState 및 View 주입
-        this.gameState = new GameState(playerCount, pieceCount);
-        this.view = view;
+    public GameController(PlayConfig config, List<String> playerNames, GameView view) {
+        this.state = new GameState(config, playerNames);
+        this.view  = view;
     }
 
-    // 윷을 던졌을 때 호출되는 메서드: 랜덤 결과 생성 후 View에 표시
-    public void onYutThrow() {
-        int result = Yut.throwRandom();
-        gameState.setYutResult(result);
-        view.showYutResult(result);
-        view.showMessage("윷 결과: " + result);
+    /** 게임 시작 시 보드 초기화 */
+    public void startGame() {
+        view.updateBoard(state);
     }
 
-    // 테스트용 윷 던지기: 고정된 값으로 설정
-    public void onTestThrow(int fixedResult) {
-        gameState.setYutResult(fixedResult);
-        view.showYutResult(fixedResult);
-        view.showMessage("테스트 결과: " + fixedResult);
+    /** 랜덤 윷 던지기 처리 */
+    public void onThrowRandom() {
+        Yut.Result result = Yut.throwRandom();
+        state.applyThrow(result);
+        view.showThrowResult(result);
     }
 
-    // 새 말을 생성하려고 시도하는 메서드
-    public void onPieceCreate() {
-        Player current = gameState.getCurrentPlayer();
-        boolean created = current.createPiece();
-        if (created) {
-            view.showMessage("새 말이 생성되었습니다.");
-            updateView();
-        } else {
-            view.showMessage("더 이상 만들 수 있는 말이 없습니다.");
-        }
+    /** 지정 윷 던지기 처리 */
+    public void onThrowSpecified(Yut.Result specified) {
+        Yut.Result result = Yut.throwSpecified(specified);
+        state.applyThrow(result);
+        view.showThrowResult(result);
     }
 
-    // 특정 좌표의 말을 선택해 이동시키는 메서드
-    public void onPieceSelect(int x, int y) {
-        Player current = gameState.getCurrentPlayer();
-        boolean moved = current.movePiece(x, y, gameState.getYutResult());
-        if (moved) {
-            view.showMessage("말이 이동했습니다.");
-            current.checkCatch(x, y); // 상대 말 잡기
-            current.checkGoalIn();   // 골인 체크
-            updateView();            // UI 갱신
-
-            // 승리 여부 확인 후 처리
-            if (gameState.checkWinner()) {
-                view.showMessage("플레이어 " + current.getId() + " 승리!");
-                view.disableAllButtons();
-            } else {
-                gameState.advanceTurn();
-                view.highlightPlayer(gameState.getCurrentPlayer().getId());
-            }
-        } else {
-            view.showMessage("이동할 수 없습니다. 올바른 말을 선택하세요.");
-        }
-    }
-
-    // 말의 위치 상태를 기반으로 전체 View 갱신
-    private void updateView() {
-        for (Player p : gameState.getPlayers()) {
-            for (Piece piece : p.getPieces()) {
-                view.updatePiecePosition(p.getId(), piece.getX(), piece.getY(), piece.getStackCount());
+    /**
+     * 보드판 위 pathIndex, stepIndex 칸을 클릭했을 때 호출.
+     * 해당 위치에 있는 현재 플레이어의 말을 찾아서 이동 처리.
+     *
+     * @param pathIndex  경로 인덱스 (0=외곽, 1~=지름길)
+     * @param stepIndex  해당 경로 위 단계 인덱스
+     */
+    public void onSelectPiece(int pathIndex, int stepIndex) {
+        Player current = state.getCurrentPlayer();
+        for (Piece p : current.getPieces()) {
+            // 아직 완주하지 않은 자신의 말 중 위치가 일치하면
+            if (!p.isFinished()
+                    && p.getPathIndex() == pathIndex
+                    && p.getStepIndex() == stepIndex) {
+                // 말 이동
+                state.movePiece(p.getId());
+                view.updateBoard(state);
+                if (state.isGameOver()) {
+                    view.showWinner(state.getCurrentPlayer());
+                } else {
+                    state.nextTurn();
+                    view.updateBoard(state);
+                }
+                return;
             }
         }
+        // 해당 위치에 자신의 말이 없으면 아무 동작도 하지 않음
+    }
+
+    public void deployNewPiece() {
+        Player current = state.getCurrentPlayer();
+        for (Piece p : current.getPieces()) {
+            // 아직 보드에 올라가지 않은 말 찾기
+            if (p.getPathIndex() == -1 && !p.isFinished()) {
+                // 시작 위치 세팅하고 바로 이동
+                p.setPathIndex(0);
+                p.setStepIndex(0);
+                state.movePiece(p.getId());
+                view.updateBoard(state);
+                return;
+            }
+        }
+        // 꺼낼 수 있는 말이 없는 경우
+        view.showThrowResult(Yut.Result.빽도); // 예외적 알림
+    }
+
+    /** 현재 게임 상태를 반환 **/
+    public GameState getState() {
+        return state;
     }
 }
