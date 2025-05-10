@@ -322,11 +322,11 @@ public class YutBoard extends JFrame implements GameView {
     }
 
     /** 보드 버튼 생성 헬퍼 */
-    private JButton createBoardBtn(
-            ImageIcon icon, int x, int y, int w, int h
-    ) {
+    private JButton createBoardBtn(ImageIcon icon, int x, int y, int w, int h) {
+        int iw = icon.getIconWidth();
+        int ih = icon.getIconHeight();
         JButton btn = new JButton(icon);
-        btn.setBounds(x, y, w, h);
+        btn.setBounds(x - (iw - w) / 2, y - (ih - h) / 2, iw, ih); // 중심 정렬
         btn.setBorderPainted(false);
         btn.setContentAreaFilled(false);
         return btn;
