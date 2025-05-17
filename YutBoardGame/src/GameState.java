@@ -52,9 +52,9 @@ public class GameState {
     public void applyThrow(Yut.Result result) {
         if (result == Yut.Result.빽도) {
             for (Piece p : players.get(currentPlayerIndex).getPieces()) {
-            // 보드에 나가있는 말이 있으면
+                // 보드에 나가있는 말이 있으면
                 if (p.getPathIndex() != -1 && !p.isFinished()) {
-                // 아무 일도 하지 않음
+                    // 아무 일도 하지 않음
                 }
                 else {
                     nextTurn(); //나가있는 말이 없는데 빽도가 나왔으면 턴 넘김
@@ -62,7 +62,7 @@ public class GameState {
                 }
             }
         }
-        
+
         if(currentPhase != phase.THROW) {
             return; // 던지기 단계가 아닐 때는 무시
         }
@@ -86,12 +86,12 @@ public class GameState {
         int path = selected.getPathIndex();
         int step = selected.getStepIndex();
 
-        int move = lastThrow.get(0).ordinal();  // 윷 결과에서 첫 번째 값
-        if (lastThrow.get(0) == Yut.Result.빽도) {
-            move = -1;
+        int move = lastThrow.get(select).ordinal();  // 선택된 결과를 사용
+        if (lastThrow.get(select) == Yut.Result.빽도){
+            move = -1; // 빽도는 -1로 처리
         }
-        System.out.printf("윷 결과 move = %d\n", move);
-        lastThrow.remove(0);  // 결과 사용 후 제거
+        lastThrow.remove(select); // 던지기 결과 사용 후 제거
+        select = 0; // 다음 이동에 사용할 수 있도록 초기화
 
         // 함께 이동할 말들 선택 (그룹)
         List<Piece> groupToMove = new ArrayList<>();
