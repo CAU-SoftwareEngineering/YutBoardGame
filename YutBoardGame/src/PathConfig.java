@@ -8,7 +8,7 @@ public class PathConfig {
     private final int mergeStep;         // 중앙 합류 지점의 단계 인덱스
     private final int[] exitOffsets;     // 지름길 종료 후 외곽 경로 복귀 보정값
     private final int outerLength;       // 외곽 경로 전체 단계 수
-    private final int shortcutLengths;   // 지름길 최대 단계 수
+    private final int[] shortcutLengths;   // 지름길 최대 단계 수
 
     public PathConfig(PlayConfig.BoardType boardType) {
         this.boardType = boardType;
@@ -55,5 +55,5 @@ public class PathConfig {
     /** 외곽 경로 전체 단계 수 */
     public int getOuterLength() { return outerLength; }
     /** 특정 지름길의 최대 단계 수 */
-    public int getShortcutLength() { return shortcutLengths; }
+    public int getShortcutLength(int idx) { return shortcutLengths; }
 }

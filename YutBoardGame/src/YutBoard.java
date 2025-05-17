@@ -218,12 +218,12 @@ public class YutBoard extends JFrame implements GameView {
                 if(state.getLastThrow().size()>1){
 
                     int select = JOptionPane.showOptionDialog(this, "어떻게 움직이시겠습니까?", "선택",
-                            JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
-                            null, state.getLastThrow().toArray(), null);
-                    state.setSelect(select);
+                        JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
+                        null, state.getLastThrow().toArray(), null);
+                        state.setSelect(select);
                 }
                 else{state.setSelect(0);}
-                controller.deployNewPiece();
+                controller.deployNewPiece(); 
                 if(state.getLastThrow().size()==0){
                     canMove = false;
                 }
@@ -236,21 +236,10 @@ public class YutBoard extends JFrame implements GameView {
                     final int fpi=pi, fsi=si;
                     panButtons[pi][si].addActionListener(e->{ if (!canMove) return;
                         if(state.getLastThrow().size()>1){
-
-                            Player current = state.getCurrentPlayer();
-                            for (Piece p : current.getPieces()) {
-                                // 아직 완주하지 않은 자신의 말 중 위치가 일치하면
-                                if (!p.isFinished()
-                                        && p.getPathIndex() == fpi
-                                        && p.getStepIndex() == fsi) {
-                                    int select = JOptionPane.showOptionDialog(this, "어떻게 움직이시겠습니까?", "선택",
-                                            JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
-                                            null, state.getLastThrow().toArray(), null);
-                                    state.setSelect(select);
-                                    break;
-                                }
-                            }
-
+                            int select = JOptionPane.showOptionDialog(this, "어떻게 움직이시겠습니까?", "선택",
+                            JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
+                            null, state.getLastThrow().toArray(), null);
+                            state.setSelect(select);
                         }
                         else{state.setSelect(0);}
                         controller.onSelectPiece(fpi,fsi);
@@ -260,8 +249,8 @@ public class YutBoard extends JFrame implements GameView {
                         updateBoard(controller.getState());});
                 }
             }
-
-
+            
+            
             piecePanel.add(newPieceBtn);
             newPieceBtn.setEnabled(false);
             if (state.getPhase() == GameState.phase.THROW) {
@@ -316,8 +305,6 @@ public class YutBoard extends JFrame implements GameView {
             piecePanel.revalidate();
             piecePanel.repaint();
         });
-        updateInfoPanel(state);
-
     }
 
     private void updateInfoPanel(GameState state){
@@ -325,7 +312,7 @@ public class YutBoard extends JFrame implements GameView {
         for(Player p: state.getPlayers()){
             JPanel pP=new JPanel(new FlowLayout(FlowLayout.LEFT));
             // 말 이미지
-            for(Piece pc: p.getPieces()) if(!pc.isFinished()) pP.add(new JLabel(loadIcon(IMG_ROOT+(p.getColor())+".jpg")));
+            for(Piece pc: p.getPieces()) if(!pc.isFinished()) pP.add(new JLabel(loadIcon(IMG_ROOT+(p.getId()%4==0?"blue":"red")+".jpg")));
             pP.add(new JLabel("남은말: "+p.getPieces().stream().filter(q->!q.isFinished()).count()));
             pP.add(new JLabel("포인트: "+p.getPieces().stream().filter(Piece::isFinished).count()));
             infoPanel.add(pP);
