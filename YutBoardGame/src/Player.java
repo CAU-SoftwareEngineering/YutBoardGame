@@ -6,8 +6,8 @@ import java.util.List;
  */
 public class Player {
     private final int id;                // 플레이어 ID
-    private final String color;          // 말 색상 ("blue", "red", ...)
-    private final List<Piece> pieces;    // 소유 말 리스트
+    private final String color;          // 말 색상
+    private final List<Piece> pieces;    // 소유한 말 리스트
 
     public Player(int id, String name, int pieceCount) {
         this.id = id;

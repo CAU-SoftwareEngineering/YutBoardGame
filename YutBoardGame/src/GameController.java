@@ -40,23 +40,28 @@ public class GameController {
      */
     public void onSelectPiece(int pathIndex, int stepIndex) {
         Player current = state.getCurrentPlayer();
+        Piece selectedPiece = null;
         for (Piece p : current.getPieces()) {
-            // 아직 완주하지 않은 자신의 말 중 위치가 일치하면
-            if (!p.isFinished()
-                    && p.getPathIndex() == pathIndex
-                    && p.getStepIndex() == stepIndex) {
-                // 말 이동
-                state.movePiece(p.getId());
-                view.updateBoard(state);
-                if (state.isGameOver()) {
-                    view.showWinner(state.getCurrentPlayer());
-                } else {
-                    view.updateBoard(state);
-                }
-                return;
+            if (!p.isFinished() && p.getPathIndex() == pathIndex && p.getStepIndex() == stepIndex) {
+                selectedPiece = p;
+                break;
             }
         }
-        // 해당 위치에 자신의 말이 없으면 아무 동작도 하지 않음
+
+        if (selectedPiece != null) {
+            state.movePiece(selectedPiece.getId()); // GameState 변경
+
+            // GameState.movePiece() 내부에서 승리 조건, 추가 턴 등을 결정하고 상태를 변경
+            // 그 최종 상태를 기반으로 UI를 업데이트
+            if (state.isGameOver() && state.getWinner() != null) {
+                // showWinner가 내부적으로 updateBoard를 호출하여 최종 화면을 그림
+                view.showWinner(state.getWinner());
+            } else {
+                // 게임이 계속 진행 중이면 현재 상태로 보드 업데이트
+                view.updateBoard(state);
+            }
+        }
+        // 선택된 말이 없거나 이미 처리된 경우 아무것도 하지 않음
     }
 
     public void deployNewPiece() {
@@ -76,8 +81,15 @@ public class GameController {
         view.showThrowResult(Yut.Result.빽도); // 예외적 알림
     }
 
-    /** 현재 게임 상태를 반환 **/
+    /** 현재 게임 상태를 반환 */
     public GameState getState() {
         return state;
     }
+
+    /** 게임 재시작 처리: 현재 게임 뷰를 닫고, 초기 설정 화면을 뷰를 통해 다시 표시하도록 요청 */
+    public void restartGame() {
+        view.closeGameView();      // GameView 인터페이스를 통해 뷰 닫기 요청
+        view.showInitialSetup();   // GameView 인터페이스를 통해 초기 설정 화면 표시 요청
+    }
 }
+

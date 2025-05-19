@@ -8,7 +8,7 @@ public class PathConfig {
     private final int mergeStep;         // 중앙 합류 지점의 단계 인덱스
     private final int[] exitOffsets;     // 지름길 종료 후 외곽 경로 복귀 보정값
     private final int outerLength;       // 외곽 경로 전체 단계 수
-    private final int[] shortcutLengths;   // 지름길 최대 단계 수
+    private final int shortcutLengths;   // 지름길 최대 단계 수
 
     public PathConfig(PlayConfig.BoardType boardType) {
         this.boardType = boardType;
@@ -17,7 +17,7 @@ public class PathConfig {
                 branchPoints    = new int[]{0, 5, 10};
                 mergeShortcut   = 2;
                 mergeStep       = 2;
-                exitOffsets     = new int[]{0, 10, 15};
+                exitOffsets     = new int[]{0, 15, 20};
                 outerLength     = 20;
                 shortcutLengths = 5;
                 break;
@@ -25,7 +25,7 @@ public class PathConfig {
                 branchPoints    = new int[]{0, 5, 10, 15};
                 mergeShortcut   = 3;
                 mergeStep       = 2;
-                exitOffsets     = new int[]{0, 10, 15, 20};
+                exitOffsets     = new int[]{0, 20, 20, 25};
                 outerLength     = 25;
                 shortcutLengths = 5;
                 break;
@@ -33,7 +33,7 @@ public class PathConfig {
                 branchPoints    = new int[]{0, 5, 10, 15, 20};
                 mergeShortcut   = 4;
                 mergeStep       = 2;
-                exitOffsets     = new int[]{0, 5, 15, 20, 25};
+                exitOffsets     = new int[]{0, 25, 25, 25, 30};
                 outerLength     = 30;
                 shortcutLengths = 5;
                 break;
@@ -55,5 +55,5 @@ public class PathConfig {
     /** 외곽 경로 전체 단계 수 */
     public int getOuterLength() { return outerLength; }
     /** 특정 지름길의 최대 단계 수 */
-    public int getShortcutLength(int idx) { return shortcutLengths; }
+    public int getShortcutLength() { return shortcutLengths; }
 }
