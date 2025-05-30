@@ -10,7 +10,7 @@
 
 ### 2. 개발 언어 및 도구
 - **개발 언어:** Java
-- **UI 툴킷:** Java Swing (필수), JavaFX 또는 Eclipse SWT (선택 1 이상)
+- **UI 툴킷:** Java Swing (필수), JavaFX로 추가 UI 제작
 - **버전 관리:** GitHub
 - **테스트 도구:** JUnit
 - **개발 환경:** IntelliJ 또는 Eclipse 등 Java 개발 환경
