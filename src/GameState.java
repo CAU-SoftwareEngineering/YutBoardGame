@@ -56,6 +56,8 @@ public class GameState {
     public void setSelect(int value) { select = value; }
     /** 이벤트 상태 getter */
     public TurnEvent getLastTurnEvent() { return lastTurnEvent; }
+    /** 승리 플레이어 getter*/
+    public Player getWinner() { return winner; }
 
     /**
      * 윷 던지기 결과 적용
@@ -101,30 +103,28 @@ public class GameState {
      * @param pieceId 이동할 말의 ID (플레이어의 말 리스트에서의 인덱스)
      */
     public void movePiece(int pieceId) {
-        this.lastTurnEvent = TurnEvent.NORMAL; // 이동 시작 시 이벤트를 '일반'으로 초기화
+        this.lastTurnEvent = TurnEvent.NORMAL;
         Player current = getCurrentPlayer();
 
-        // 이동할 윷 값 결정
         if (lastThrow.isEmpty()) {
-            System.err.println("오류: 이동할 윷 결과가 없습니다.");
-            // 비정상 상황, 턴을 넘기거나 오류 처리
-            if (throwCount == 0 && currentPhase == phase.MOVE) {
-                nextTurn();
-            }
+            if (throwCount == 0 && currentPhase == phase.MOVE) nextTurn();
             return;
         }
+
         Yut.Result yutResult = lastThrow.get(select);
+
+        // ========================================================================
+        // BUG FIX: 복잡한 if-else 로직을 명확한 switch 문으로 수정하여 이동 거리 계산 오류 해결
+        // ========================================================================
         int move;
-        if (yutResult == Yut.Result.빽도) {
-            move = -1;
-        } else {
-            move = yutResult.ordinal(); // 빽도(0) 도(1) 개(2) 걸(3) 윷(4) 모(5) - 빽도만 -1로 조정
-            if (yutResult == Yut.Result.모) move = 5;
-            else if (yutResult == Yut.Result.윷) move = 4;
-            else if (yutResult == Yut.Result.걸) move = 3;
-            else if (yutResult == Yut.Result.개) move = 2;
-            else if (yutResult == Yut.Result.도) move = 1;
-            // 빽도는 위에서 -1로 처리했으므로 ordinal 값 0은 사용되지 않음.
+        switch (yutResult) {
+            case 빽도: move = -1; break;
+            case 도:  move = 1;  break;
+            case 개:  move = 2;  break;
+            case 걸:  move = 3;  break;
+            case 윷:  move = 4;  break;
+            case 모:  move = 5;  break;
+            default:   move = 0;  break; // 예외 상황
         }
 
         lastThrow.remove(select); // 사용한 윷 결과 제거
@@ -439,9 +439,5 @@ public class GameState {
         }
         this.winner = getCurrentPlayer(); // 승자 설정
         return true;
-    }
-
-    public Player getWinner() {
-        return winner;
     }
 }
