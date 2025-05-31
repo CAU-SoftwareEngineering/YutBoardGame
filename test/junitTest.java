@@ -31,8 +31,8 @@ public class junitTest {
     }
 
     @Test
-    @DisplayName("말 이동 테스트 (외곽 경로 및 지름길 진입)")
-    void pieceMoveShortcutTest() {
+    @DisplayName("말 이동 테스트1 (외곽 경로 및 첫번째 지름길 진입)")
+    void pieceMoveShortcutTest1() {
         // given: '윷'과 '도'를 던져 이동 기회 2번 확보
         state.applyThrow(Yut.Result.윷);
         state.applyThrow(Yut.Result.도);
@@ -57,28 +57,59 @@ public class junitTest {
     }
 
     @Test
-    @DisplayName("말 업기 테스트")
-    void pieceGroupTest() {
-        // given: '윷'과 '개'를 던져 이동 기회 2번 확보
+    @DisplayName("말 이동 테스트2 (외곽 경로 및 두번째 지름길 진입)")
+    void pieceMoveShortcutTest2() {
+        // given: '윷', '윷', '개'를 던져 이동 기회 3번 확보
+        state.applyThrow(Yut.Result.윷);
         state.applyThrow(Yut.Result.윷);
         state.applyThrow(Yut.Result.개);
 
+        Piece piece = player0.getPieces().get(0);
+        piece.setPathIndex(0);
+        piece.setStepIndex(0);
+
+        // when: '윷'(4칸)으로 이동
+        state.setSelect(0); // '윷' 선택
+        state.movePiece(piece.getId());
+
+        // then: P0, S4에 위치
+        assertEquals(4, piece.getStepIndex(), "'윷'으로 네 칸 이동");
+
+        // when: '윷'(4칸)으로 이동
+        state.setSelect(0); // '윷' 선택
+        state.movePiece(piece.getId());
+
+        // then: P0, S8에 위치
+        assertEquals(8, piece.getStepIndex(), "'윷'으로 네 칸 이동");
+
+        // when: 남은 '개'(2칸)로 이동
+        state.setSelect(0); // 남은 '도' 선택
+        state.movePiece(piece.getId());
+
+        // then: 분기점인 P0, S10에 위치
+        assertEquals(10, piece.getStepIndex(), "'개'로 한 칸 더 이동하여 분기점 도착");
+    }
+
+    @Test
+    @DisplayName("말 업기 테스트")
+    void pieceGroupTest() {
+        // given: 첫 번째 말(piece1)이 P0, S2 위치에 미리 자리를 잡고 있음
         Piece piece1 = player0.getPieces().get(0);
-        Piece piece2 = player0.getPieces().get(1);
         piece1.setPathIndex(0);
-        piece1.setStepIndex(0);
+        piece1.setStepIndex(2);
+
+        // given: 두 번째 말(piece2)은 출발점에 있음
+        Piece piece2 = player0.getPieces().get(1);
         piece2.setPathIndex(0);
         piece2.setStepIndex(0);
 
-        // when: 첫 번째 말을 '개'(2칸)로 이동
-        state.setSelect(1); // '개' 선택
-        state.movePiece(piece1.getId());
-
-        // when: 두 번째 말을 '윷'(4칸)으로 이동 (같은 그룹이라 piece1도 함께 이동)
-        state.setSelect(0); // '윷' 선택
+        // when: '개'(2칸)를 던져 두 번째 말을 첫 번째 말 위치로 이동
+        state.applyThrow(Yut.Result.개);
         state.movePiece(piece2.getId());
 
-        // then: 두 말 모두 업혔는지 확인
+        // then: 두 말 모두 같은 위치(P0, S2)에 있으므로 업힘 상태여야 함
+        assertEquals(2, piece1.getStepIndex(), "첫 번째 말의 위치 확인");
+        assertEquals(2, piece2.getStepIndex(), "두 번째 말의 위치 확인");
         assertTrue(piece1.isGrouped(), "첫 번째 말이 업힘 상태여야 함");
         assertTrue(piece2.isGrouped(), "두 번째 말이 업힘 상태여야 함");
     }
