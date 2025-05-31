@@ -487,14 +487,16 @@ public class YutBoard extends JFrame implements GameView {
                 String prefix = "";
                 Yut.Result lastThrownResult = state.getLastThrow().isEmpty() ? null : state.getLastThrow().get(state.getLastThrow().size() - 1);
 
-                if (state.getLastTurnEvent() == GameState.TurnEvent.YUT_OR_MO_THROWN && lastThrownResult != null) {
+                if (state.getLastTurnEvent() == GameState.TurnEvent.BAEKDO_TURN_PASS) {
+                    prefix = "빽도가 나왔지만 움직일 말이 없어 턴이 넘어갑니다.\n";
+                } else if (state.getLastTurnEvent() == GameState.TurnEvent.YUT_OR_MO_THROWN && lastThrownResult != null) {
                     prefix = "'" + lastThrownResult.toString() + "'이(가) 나와 한 번 더 던지세요!\n";
                 } else if (state.getLastTurnEvent() == GameState.TurnEvent.CAPTURE_OCCURRED) {
                     prefix = "상대 말을 잡았습니다! 한 번 더 던지세요.\n";
                 }
 
                 // 3. 최종적으로 조합된 메시지를 statusLabel에 한 번만 설정
-                statusLabel.setText(prefix + baseMessage);
+                statusLabel.setText("<html>" + prefix.replace("\n", "<br>") + baseMessage + "</html>");
 
                 enableYutButtons(true);
                 newPieceBtn.setEnabled(false); // 윷 던지기 페이즈에는 새 말 꺼내기 비활성화
