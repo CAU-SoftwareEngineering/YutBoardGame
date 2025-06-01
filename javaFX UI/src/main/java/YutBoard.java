@@ -524,10 +524,13 @@ public class YutBoard implements GameView {
                 String baseMessage = "Player " + state.getCurrentPlayer().getId() + ": 윷을 던지세요. (남은 횟수: " + state.getThrowCount() + ")"; //
                 String prefix = ""; // 추가 안내 메시지
 
-                Yut.Result lastThrownResult = state.getLastThrow().isEmpty() ? null : state.getLastThrow().get(state.getLastThrow().size() - 1);
-
-                if (state.getLastTurnEvent() == GameState.TurnEvent.YUT_OR_MO_THROWN && lastThrownResult != null) {
-                    prefix = "'" + lastThrownResult.toString() + "'이(가) 나와 한 번 더 던지세요!\n";
+                if (state.getLastTurnEvent() == GameState.TurnEvent.BAEKDO_TURN_PASS) {
+                    prefix = "'빽도'가 나왔지만 움직일 말이 없어 턴이 넘어갑니다.\n";
+                } else if (state.getLastTurnEvent() == GameState.TurnEvent.YUT_OR_MO_THROWN) {
+                    Yut.Result lastThrownResult = state.getLastThrow().isEmpty() ? null : state.getLastThrow().get(state.getLastThrow().size() - 1);
+                    if (lastThrownResult != null) {
+                        prefix = "'" + lastThrownResult.toString() + "'이(가) 나와 한 번 더 던지세요!\n";
+                    }
                 } else if (state.getLastTurnEvent() == GameState.TurnEvent.CAPTURE_OCCURRED) {
                     prefix = "상대 말을 잡았습니다! 한 번 더 던지세요.\n";
                 }

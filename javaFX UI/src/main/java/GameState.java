@@ -9,7 +9,8 @@ public class GameState {
     public enum TurnEvent {
         NORMAL,             // 일반 상태
         YUT_OR_MO_THROWN,   // 윷 또는 모를 던져서 추가 턴 획득
-        CAPTURE_OCCURRED    // 상대 말을 잡아서 추가 턴 획득
+        CAPTURE_OCCURRED,    // 상대 말을 잡아서 추가 턴 획득
+        BAEKDO_TURN_PASS    // 빽도가 나왔지만 말이 없어 턴이 넘어감
     }
 
     private final List<Player> players;
@@ -56,6 +57,8 @@ public class GameState {
     public void setSelect(int value) { select = value; }
     /** 이벤트 상태 getter */
     public TurnEvent getLastTurnEvent() { return lastTurnEvent; }
+    /** 승리 플레이어 getter*/
+    public Player getWinner() { return winner; }
 
     /**
      * 윷 던지기 결과 적용
@@ -64,35 +67,41 @@ public class GameState {
     public void applyThrow(Yut.Result result) {
         this.lastTurnEvent = TurnEvent.NORMAL; // 이벤트를 기본적으로 '일반'으로 초기화
 
-        if (result == Yut.Result.빽도) { //
-            // ... (기존 빽도 처리 로직 동일) ...
-            for (Piece p : players.get(currentPlayerIndex).getPieces()) {
+        if (result == Yut.Result.빽도) {
+            // 현재 플레이어의 말 중 하나라도 판 위에 있는지 확인
+            boolean hasPieceOnBoard = false;
+            for (Piece p : getCurrentPlayer().getPieces()) {
                 if (p.getPathIndex() != -1 && !p.isFinished()) {
-                } else {
-                    nextTurn();
-                    return;
+                    hasPieceOnBoard = true;
+                    break;
                 }
             }
+            // 판에 말이 하나도 없는 상태에서 빽도가 나온 경우에만 턴을 넘김
+            if (!hasPieceOnBoard) {
+                this.lastTurnEvent = TurnEvent.BAEKDO_TURN_PASS; // 턴 넘어감 이벤트 설정
+                nextTurn(); // 다음 플레이어에게 턴 넘김
+                return; // 메소드 종료
+            }
         }
 
-        if(currentPhase != phase.THROW) { //
+        // 윷 던지기 단계가 아니면 로직을 실행하지 않음
+        if(currentPhase != phase.THROW) {
             return;
         }
-        this.lastThrow.add(result); //
-        throwCount --; //
 
-        if (result == Yut.Result.모 || result == Yut.Result.윷) { //
-            throwCount ++; // 윷, 모가 나오면 던질 수 있는 횟수 추가
-            this.lastTurnEvent = TurnEvent.YUT_OR_MO_THROWN; // '윷/모' 이벤트 발생 기록
+        // 윷 결과를 저장하고 던질 횟수를 차감
+        this.lastThrow.add(result);
+        throwCount --;
+
+        // 윷 또는 모가 나오면 던질 기회 추가
+        if (result == Yut.Result.모 || result == Yut.Result.윷) {
+            throwCount ++;
+            this.lastTurnEvent = TurnEvent.YUT_OR_MO_THROWN;
         }
 
-        if (throwCount == 0) { //
-            currentPhase = phase.MOVE; // 던지기 종료 후 이동 단계로 전환
-            if (this.lastTurnEvent == TurnEvent.YUT_OR_MO_THROWN) {
-                // 윷/모를 던졌지만 더 던질 기회가 없는 경우 (예: 윷/모 + 잡기 실패 후)
-                // 이 상황은 보통 발생하지 않지만, 만약을 대비해 NORMAL로 돌릴 수 있음.
-                // 현재 로직에서는 유지하여 "말을 움직이세요" 메시지가 나오게 함.
-            }
+        // 더 이상 던질 기회가 없으면 말 이동 단계로 전환
+        if (throwCount == 0) {
+            currentPhase = phase.MOVE;
         }
     }
 
@@ -101,30 +110,25 @@ public class GameState {
      * @param pieceId 이동할 말의 ID (플레이어의 말 리스트에서의 인덱스)
      */
     public void movePiece(int pieceId) {
-        this.lastTurnEvent = TurnEvent.NORMAL; // 이동 시작 시 이벤트를 '일반'으로 초기화
+        this.lastTurnEvent = TurnEvent.NORMAL;
         Player current = getCurrentPlayer();
 
-        // 이동할 윷 값 결정
         if (lastThrow.isEmpty()) {
-            System.err.println("오류: 이동할 윷 결과가 없습니다.");
-            // 비정상 상황, 턴을 넘기거나 오류 처리
-            if (throwCount == 0 && currentPhase == phase.MOVE) {
-                nextTurn();
-            }
+            if (throwCount == 0 && currentPhase == phase.MOVE) nextTurn();
             return;
         }
+
         Yut.Result yutResult = lastThrow.get(select);
+
         int move;
-        if (yutResult == Yut.Result.빽도) {
-            move = -1;
-        } else {
-            move = yutResult.ordinal(); // 빽도(0) 도(1) 개(2) 걸(3) 윷(4) 모(5) - 빽도만 -1로 조정
-            if (yutResult == Yut.Result.모) move = 5;
-            else if (yutResult == Yut.Result.윷) move = 4;
-            else if (yutResult == Yut.Result.걸) move = 3;
-            else if (yutResult == Yut.Result.개) move = 2;
-            else if (yutResult == Yut.Result.도) move = 1;
-            // 빽도는 위에서 -1로 처리했으므로 ordinal 값 0은 사용되지 않음.
+        switch (yutResult) {
+            case 빽도: move = -1; break;
+            case 도:  move = 1;  break;
+            case 개:  move = 2;  break;
+            case 걸:  move = 3;  break;
+            case 윷:  move = 4;  break;
+            case 모:  move = 5;  break;
+            default:   move = 0;  break; // 예외 상황
         }
 
         lastThrow.remove(select); // 사용한 윷 결과 제거
@@ -205,26 +209,29 @@ public class GameState {
             if (move == -1) { // 빽도 (-1) 처리
                 System.out.printf("빽도 처리 시작: ID %d, 현재 P%d S%d\n", pieceToMove.getId(), currentPath, currentStep);
                 if (currentPath == 0) { // 현재 외곽 경로에 있을 때
-                    if (currentStep == 0) { // 외곽 경로의 시작점(0,0)
-                        System.out.printf("빽도: ID %d, 외곽 시작점(P0,S0)에서 이동 없음.\n", pieceToMove.getId());
-                        // nextPath, nextStep은 currentPath, currentStep 그대로 유지 (이동 없음)
-                    } else { // 외곽 경로의 다른 지점
-                        nextPath = 0; // 경로는 외곽 그대로
+                    // 수정된 로직: 위치 1에 있는 말이 빽도를 만나면 완주
+                    if (currentStep == 1) {
+                        System.out.printf("빽도: ID %d, 외곽 P0 S1에서 뒤로 가 완주 처리.\n", pieceToMove.getId());
+                        pieceToMove.setFinished(true);
+                        nextPath = 0;
+                        nextStep = 0; // 시각적 위치를 위해 명시적으로 설정
+                    } else if (currentStep > 1) { // 외곽 경로의 다른 지점 (위치 0은 제외)
+                        nextPath = 0;
                         nextStep = currentStep - 1; // 한 칸 뒤로
                         System.out.printf("빽도: ID %d, 외곽 P%d S%d -> P%d S%d\n",
                                 pieceToMove.getId(), currentPath, currentStep, nextPath, nextStep);
                     }
+                    // 만약 currentStep == 0 이면, 아무것도 하지 않고 현재 위치를 유지
                 } else { // 현재 지름길(currentPath > 0)에 있을 때
-                    if (currentStep == 0) { // 지름길의 시작점(step 0)에서 빽도
-                        // 외곽 분기점으로 복귀
-                        int correspondingBranchPoint = pathConfig.getBranchPoint(currentPath); // currentPath가 지름길 인덱스(1, 2...)
-                        nextPath = 0; // 외곽 경로로 변경
-                        nextStep = correspondingBranchPoint; // 해당 분기점 위치로 복원
+                    if (currentStep == 0) {
+                        int correspondingBranchPoint = pathConfig.getBranchPoint(currentPath);
+                        nextPath = 0;
+                        nextStep = correspondingBranchPoint;
                         System.out.printf("빽도: ID %d, 지름길 P%d S0 -> 외곽 P%d S%d (분기점 복귀)\n",
                                 pieceToMove.getId(), currentPath, nextPath, nextStep);
-                    } else { // 지름길의 중간 또는 끝에서 빽도 (step > 0)
-                        nextPath = currentPath; // 지름길 경로 유지
-                        nextStep = currentStep - 1; // 한 칸 뒤로
+                    } else {
+                        nextPath = currentPath;
+                        nextStep = currentStep - 1;
                         System.out.printf("빽도: ID %d, 지름길 P%d S%d -> P%d S%d\n",
                                 pieceToMove.getId(), currentPath, currentStep, nextPath, nextStep);
                     }
@@ -424,7 +431,6 @@ public class GameState {
         currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
         throwCount = 1; // 턴마다 던지기 횟수 초기화
         currentPhase = phase.THROW; // 턴 넘기면 던지기 단계로 전환
-        this.lastTurnEvent = TurnEvent.NORMAL; // 다음 턴 시작 시 이벤트 상태 초기화
     }
 
     /**
@@ -439,9 +445,5 @@ public class GameState {
         }
         this.winner = getCurrentPlayer(); // 승자 설정
         return true;
-    }
-
-    public Player getWinner() {
-        return winner;
     }
 }
